@@ -1,4 +1,22 @@
 <?php
+
+trait Rating
+{
+    protected $rating = 0;
+
+    public function setRating($_rating)
+    {
+        if ($_rating >= 1 && $_rating <= 5) {
+            $this->rating = $_rating;
+        } else {
+            throw new Exception("Invalid rating. Rating must be between 1 and 5.");
+        }
+    }
+    public function getRating()
+    {
+        return $this->rating;
+    }
+}
 class Genre
 {
     protected $name;
@@ -22,6 +40,7 @@ class Genre
 
 class Movie
 {
+    use Rating;
     protected $title;
     protected $length;
     protected $release_year;
@@ -40,6 +59,7 @@ class Movie
         echo "Title: " . $this->title . "<br>";
         echo "Length: " . $this->length . " minutes<br>";
         echo "Release Date: " . $this->release_year . "<br>";
+        echo "Rating: " . $this->rating . "<br>";
         echo "Genre: ";
         foreach ($this->genres as $index => $genre) {
             echo $genre->getName();
@@ -76,7 +96,22 @@ $movie2 = new Movie("The Hobbit", 169, "2012", [$genre2, $genre4]);
     echo "<br>";
     $movie2->displayInfo();
     ?>
-
+    <form action="index.php" method="POST">
+        <label for="rating">Rate "The Matrix"</label>
+        <input type="number" name="rating" min="1" max="5" required>
+        <button type="submit">SET RATING</button>
+    </form>
+    <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $rating = (int) $_POST["rating"];
+        try {
+            $movie1->setRating($rating);
+            echo "<p>Rating set successfully! Current Rating: " . $movie1->getRating() . "</p>";
+        } catch (Exception $e) {
+            echo "<p style='color:red;'>Error: " . $e->getMessage() . "</p>";
+        }
+    }
+    ?>
 </body>
 
 </html>
